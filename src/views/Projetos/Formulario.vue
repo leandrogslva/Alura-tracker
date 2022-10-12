@@ -21,8 +21,8 @@
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/store";
 import { ADICIONA_PROJETO, ALTERA_PROJETO } from "@/store/tipo-mutacoes";
-import { notificacaoMixin } from "@/mixins/notificar";
 import { TipoNotificacao } from "@/interfaces/INotificacao";
+import useNotificador from "@/hooks/notificador";
 
 export default defineComponent({
   name: "FormularioProjetoView",
@@ -31,7 +31,6 @@ export default defineComponent({
       type: String,
     },
   },
-  mixins: [notificacaoMixin],
   data() {
     return {
       nomeDoProjeto: "",
@@ -58,8 +57,10 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const { notificar } = useNotificador();
     return {
       store,
+      notificar
     };
   },
   mounted() {
