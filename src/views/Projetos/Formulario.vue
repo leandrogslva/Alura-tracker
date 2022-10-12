@@ -20,7 +20,8 @@
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
 import { useStore } from "@/store";
-import { ADICIONA_PROJETO, ALTERA_PROJETO, NOTIFICAR } from "@/store/tipo-mutacoes";
+import { ADICIONA_PROJETO, ALTERA_PROJETO } from "@/store/tipo-mutacoes";
+import { notificacaoMixin } from "@/mixins/notificar";
 import { TipoNotificacao } from "@/interfaces/INotificacao";
 
 export default defineComponent({
@@ -30,6 +31,7 @@ export default defineComponent({
       type: String,
     },
   },
+  mixins: [notificacaoMixin],
   data() {
     return {
       nomeDoProjeto: "",
@@ -45,12 +47,12 @@ export default defineComponent({
       } else {
         this.store.commit(ADICIONA_PROJETO, this.nomeDoProjeto);
       }
+      this.notificar(
+        TipoNotificacao.SUCESSO,
+        "Exelente!",
+        "O projeto foi cadastrado com sucesso"
+      );
       this.nomeDoProjeto = "";
-      this.store.commit(NOTIFICAR, {
-        titulo: "Novo projeto foi salvo",
-        texto: "Prontinho ;) seu projeto já está disponível.",
-        tipo: TipoNotificacao.SUCESSO
-      })
       this.$router.push("/");
     },
   },
