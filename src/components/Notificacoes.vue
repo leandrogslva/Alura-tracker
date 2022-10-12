@@ -47,6 +47,6 @@ export default defineComponent({
   right: 0;
   width: 300px;
   padding: 8px;
-  z-index: 105f;
+  z-index: 105;
 }
 </style>
