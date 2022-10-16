@@ -33,9 +33,12 @@ export default defineComponent({
       required: true,
     },
   },
-  methods: {
-    tarefaClicada() : void {
-      this.$emit("aoTarefaClicada", this.tarefa)
+  setup(props, contexto) {
+    const tarefaClicada = () => {
+      contexto.emit("aoTarefaClicada", props.tarefa);
+    }
+    return{
+      tarefaClicada
     }
   }
 });

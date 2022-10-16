@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import Formulario from "../components/Formulario.vue";
 import Tarefa from "../components/Tarefa.vue";
 import Box from "../components/Box.vue";
@@ -60,45 +60,47 @@ import {
 import ITarefa from "@/interfaces/ITarefa";
 
 export default defineComponent({
-  name: "TarefasViw",
-  data() {
-    return {
-      tarefaSelecionada: null as ITarefa | null,
-    };
-  },
+  name: "TarefasView",
   components: {
     Formulario,
     Tarefa,
     Box,
   },
-  methods: {
-    salvarTarefa(tarefa: ITarefa): void {
-      this.store.dispatch(CADASTRAR_TAREFA, tarefa);
-    },
-    selecionarTarefa(tarefa: ITarefa) {
-      this.tarefaSelecionada = Object.assign({}, tarefa);
-    },
-    fecharModal(): void {
-      this.tarefaSelecionada = null;
-    },
-    alterarTarefa() {
-      this.store
-        .dispatch(ALTERAR_TAREFA, this.tarefaSelecionada)
-        .then(() => this.fecharModal());
-    },
-  },
-  computed: {
-    listaEstaVazia(): boolean {
-      return this.tarefas.length === 0;
-    },
-  },
+  // computed: {
+  //   listaEstaVazia(): boolean {
+  //     return this.tarefas.length === 0;
+  //   },
+  // },
   setup() {
     const store = useStore();
     store.dispatch(OBTER_TAREFAS);
     store.dispatch(OBTER_PROJETOS);
+    const tarefaSelecionada = ref(null as ITarefa | null);
+
+    const salvarTarefa = (tarefa: ITarefa): void => {
+      store.dispatch(CADASTRAR_TAREFA, tarefa);
+    };
+    const selecionarTarefa = (tarefa: ITarefa): void => {
+      tarefaSelecionada.value = Object.assign({}, tarefa);
+    };
+    const fecharModal = (): void => {
+      tarefaSelecionada.value = null;
+    };
+    const alterarTarefa = (): void => {
+      store
+        .dispatch(ALTERAR_TAREFA, tarefaSelecionada.value)
+        .then(() => fecharModal());
+    };
+    
     return {
       store,
+      fecharModal,
+      salvarTarefa,
+      selecionarTarefa,
+      alterarTarefa,
+      tarefaSelecionada,
       tarefas: computed(() => store.state.tarefa.tarefas),
+      listaEstaVazia: computed(() => store.state.tarefa.tarefas.length === 0),
     };
   },
 });

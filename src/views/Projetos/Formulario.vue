@@ -18,11 +18,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
+import { defineComponent, ref } from "@vue/runtime-core";
 import { useStore } from "@/store";
 import { TipoNotificacao } from "@/interfaces/INotificacao";
 import useNotificador from "@/hooks/notificador";
 import { ALTERAR_PROJETO, CADASTRAR_PROJETO } from "@/store/tipo-acoes";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "FormularioProjetoView",
@@ -31,51 +32,49 @@ export default defineComponent({
       type: String,
     },
   },
-  data() {
-    return {
-      nomeDoProjeto: "",
-    };
-  },
-  methods: {
-    salvar() {
-      if (this.id) {
-        this.store
+
+  setup(props) {
+    const store = useStore();
+    const { notificar } = useNotificador();
+    const router = useRouter();
+
+    const nomeDoProjeto = ref("");
+    if (props.id) {
+      const projeto = store.state.projeto.projetos.find(
+        (projeto) => projeto.id == props.id
+      );
+      nomeDoProjeto.value = projeto?.nome || "";
+    }
+
+    const salvar = () => {
+      if (props.id) {
+        store
           .dispatch(ALTERAR_PROJETO, {
-            id: this.id,
-            nome: this.nomeDoProjeto,
+            id: props.id,
+            nome: nomeDoProjeto.value,
           })
-          .then(() => this.lidarComSucesso());
+          .then(() => lidarComSucesso());
       } else {
-        this.store
-          .dispatch(CADASTRAR_PROJETO, this.nomeDoProjeto)
-          .then(() => this.lidarComSucesso());
+        store
+          .dispatch(CADASTRAR_PROJETO, nomeDoProjeto.value)
+          .then(() => lidarComSucesso());
       }
-    },
-    lidarComSucesso() {
-      this.notificar(
+    };
+
+    const lidarComSucesso = () => {
+      notificar(
         TipoNotificacao.SUCESSO,
         "Exelente!",
         "O projeto foi cadastrado com sucesso"
       );
-      this.nomeDoProjeto = "";
-      this.$router.push("/");
-    },
-  },
-  setup() {
-    const store = useStore();
-    const { notificar } = useNotificador();
-    return {
-      store,
-      notificar,
+      nomeDoProjeto.value = "";
+      router.push("/projetos");
     };
-  },
-  mounted() {
-    if (this.id) {
-      const projeto = this.store.state.projeto.projetos.find(
-        (projeto) => projeto.id == this.id
-      );
-      this.nomeDoProjeto = projeto?.nome || "";
-    }
+
+    return {
+      nomeDoProjeto,
+      salvar
+    };
   },
 });
 </script>
